@@ -1,0 +1,141 @@
+\documentclass[12pt]{article}
+
+\usepackage{graphicx}
+\usepackage{paralist}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+
+\oddsidemargin 0mm
+\evensidemargin 0mm
+\textwidth 160mm
+\textheight 200mm
+
+\pagestyle {plain}
+\pagenumbering{arabic}
+
+\newcounter{stepnum}
+
+\title{Assignment 1 Solution}
+\author{Mehak Khan khanm294}
+\date{17th January 2021}
+
+\begin {document}
+
+\maketitle
+
+This report discusses testing of the \verb|ComplexT| and \verb|TriangleT|
+classes written for Assignment 1. It also discusses testing of the partner's
+version of the two classes. The design restrictions for the assignment
+are critiqued and then various related discussion questions are answered.
+
+\section{Assumptions and Exceptions} \label{AssumptAndExcept}
+
+\noindent Exceptions in \verb|ComplexT|:
+\begin{enumerate}
+  \item The method \textbf{recip()} throws a \verb|ZeroDivisionError| if both the real and imaginary part of the complex number are 0. This is when the reciprocal is undefined.
+  \item The method \textbf{div()} throws a \verb|ZeroDivisionError| if a complex number is being divided by 0, which is when both parts of a complex number are 0. This is when the result of the division would be undefined.
+\end{enumerate}
+Assumptions in \verb|ComplexT|:
+\begin{enumerate}
+  \item The constructor assumes that the programmer will input the correct data type for the real and imaginary part values of the complex number, which in our case is \verb|Float|. This is in accordance with Python's philosophy.
+  \item The  \textbf{get\_r()} method assumes that the domain of the argument of a complex number is (-pi, pi]
+  \item The \textbf{get\_r()} method also assumes that the argument of a 0 number is 0.0, and not undefined in contrast.
+  \item The \textbf{sqrt()} method assumes that for calculating the sqaure root of a complex number, we can not have the imaginary part be equal to 0. If the imaginary part is 0, the method assumes that the complex number is just a real number and calculates the square root of that number. If the real number is negative, the square root will be an imaginary number. The square root of 0 will be 0. 
+\end{enumerate}
+\medskip
+Exceptions in \verb|TriangleT|:
+\begin{enumerate}
+  \item The constrctor throws an \verb|Exception| is the triangle side lengths used to create an instance of \verb|TriangleT| do not form a valid triangle mathemtically and/or have negative or 0 lengths.
+\end{enumerate}
+Assumption in \verb|TriangleT|:
+\begin{enumerate}
+  \item The constructor assumes that the programmer will provide the correct data type for the side lengths of the triangle, which in our case is an \verb|Integer|. This is in accordance with Python's philosophy.
+  \item The \textbf{equal()} method assumes that the orientation of the triangle does not matter as long as both triangles have the same 3 side lengths.
+  \item The \textbf{tri\_type()} method assumes the priority of triangle's types to be in the order: Equilateral, Isosceles, Right and Scalene respectively. This means that if a triangle is both right and scalene, the method will return type right.
+\end{enumerate}
+
+\section{Test Cases and Rationale} \label{Testing}
+\noindent The test cases for both classes were approached to cover normal cases, boundary cases and cases with exceptions to ensure that all situations are covered for testing.
+\par To ensure functionality of \textbf{complex\_adt.py}, complex numbers were tested such that real and imaginary parts covered all combinations of the four quadrants. This way, the testing made sure that the class covers all possibilities of complex numbers. These tests were intended to cover all the normal cases as complex numbers can normally lie on either side of x and y axis. To cover boundary cases, which also in \verb|ComplexT| often raised exceptions, complex numbers which are essentially the zero number were tested. With the real and imaginary part 0, methods such as \textbf{div()} and \textbf{recip()} raised an exception which was tested for. Some methods returned very specific values for when the imaginary part is 0, and these special cases were also covered for methods such as \textbf{sqrt()} and \textbf{get\_phi()}.
+\par To ensure functionality of \textbf{triangle\_adt.py}, triangles were created such that any combination of integer side lengths can be tested. Invalid triangles were only tested when constructing them as this raised an exception, and triangles that do not exist could not be constructed. All other methods were then tested on normal cases as the constructor covered the boundary and exception case. Triangles were also created such that they were either one or more of the following types: isosceles, right, scalane, equailateral. This ensured creating all types of triangles to make sure that the assumed priority is correctly met in the \textbf{tri\_type()} method. Lastly, two triangles were also created so that their orientation differs but are equal to test that the assumption is met in the \textbf{equal()} method.
+\par Therefore, the test cases in both classes covered all possible inputs for every method, and used assertions to make sure the expected result is equal to the actual result. The test driver also made use of a method that helped assert that floating point numbers are approximately equal. This is because floating points are hard to test for exact equality due to rounding off differences and limitations with Python's floating point arithmetic. There were also some extra try-except cases to test that exceptions are raised where they are expected. The above tests all passed in our \textbf{test\_driver.py} and no problems surfaced through these test cases.
+
+
+
+
+\section{Results of Testing Partner's Code}
+\noindent My partner's code for ComplexT passed 9/12 tests from my test driver. The test cases failed for the following methods: \textbf{mult()}, \textbf{div()}, and \textbf{recip()}. 
+\begin{enumerate}
+\item The test for \textbf{mult()} failed due to an error in my partner's code. The calculation for the imaginary part of the result of multiplication has a mathematical error.
+\item The test for \textbf{div()} failed because my test\_driver was expecting an Exception when a complex number is divided by 0. However, my partner's ComplexT prints a statement notifying the user of an undefined result instead of raising an Exception. This is due to the ambiguity in the design specifications that did not clarify whether the code expects an exception, a print statement, or simply as assumption. Due to this, my method and my partner's method are different in what path was chosen to handle this special case.
+\item The test for the \textbf{recip()} failed because of the same reason, as my test\_driver was expecting an Exception for the reciprocal of a zero number, however my partner's ComplexT prints a statement of the result being undefined instead of raisning an Exception.
+\end{enumerate}
+My partner's code for TriangleT passed 4/7 tests. The test cases failed for the Constructor, \textbf{area()}, and \textbf{tri\_type()}. 
+\begin{enumerate}
+\item The test for Constructor failed due to the difference in our TriangleT. I raised an Exception in my constructor to prevent an invalid triangle from being created. My partner's code does not check for invalidity in the constructor, and therefore her file did not meet my test case.
+\item The test for \textbf{area()} failed due to mathematical errors in the calculation in my partner's method. The formula used to calculate area is incorrect. I believe my partner tried to use Heron's formula, which is what I used as well. However, she did not divide the perimeter by 2 in the formula which led to an incorrect result.
+\item The test for \textbf{tri\_type()} failed because of the different in assumption of priority of the triangle types. My TriangleT prioritizes in the respective order: equaliteral, isosceles, right, and scalene. My partner's TriangleT prioritizes right over any other type. This difference is also due to the ambiguity in the design specification. 
+\end{enumerate}
+
+
+\section{Critique of Given Design Specification}
+The design specifications had some strenghts which included minimal design. Methods were specified such that each one only had a single, specific and non-redundant purpose. For example, the \textbf{equal()} method in \verb|ComplexT| could have been redundant with two seperate methods that check for equality of imaginary part and equality of real part. However, the design does so with one method, increasing efficiency. 
+The design also implements the good properties of modules. This enables seperation of concerns which in turn increases maintability of code. The modules have low coupling as they are not interdependent on each other. \verb|ComplexT| and \verb|TriangleT| can be independently changed without affecting each other. The modules also have high cohesion as everything in \textbf{complex\_adt.py} is related to complex numbers and everything in \textbf{triangle\_adt.py} is related to triangles.
+Moreover, the design specifications also implement an enumerated type in \verb|TriangleT| which helps with readability of the code and also allows encapsulation of data as the enum type is hidden from the user. Lastly, the design specifications are clear about each method's return type and arguments which makes it easier to verify the code and the design specifications are abstract (implementation free) which allow the ADTs to be reused for future programs.
+\par The design specifications also had some areas of improvements. These include that the specifications were not formal which led to ambiguity as natural language is ambiguous and is open to interpretation. The ambiguity in the design is also evident by the assumptions that had to be made, listed in section 1. Making the design specifications formal would be a way to improve this. 
+
+\section{Answers to Questions}
+\begin{enumerate}[(a)]
+
+\item In ComplexT, the getter methods were \textbf{real()}, \textbf{imag()}, \textbf{get\_phi()}, \textbf{sqrt()}, \textbf{conj()}, \textbf{recip()} and \textbf{get\_r()}. All these methods return a value based on the state variables. There are however no setters in ComplexT. 
+\par As for TriangleT, the getter methods were \textbf{get\_sides()}, \textbf{perim()}, \textbf{area()}, \textbf{is\_valid()} and \textbf{tri\_type()}. All these methods are also using the state variables of triangle class and returning a value. There are also no setters in TriangleT.
+\item As the specification did not specify state variables for either ADT, there could be more possibilities for state variables.
+\par In ComplexT, I implemented the real and imaginary part to be the state variables. However, phase (argument) of a complex number and absolute value of a complex number could be also be two other options for state variables. These are calculated in our \textbf{get\_phi()} and \textbf{get\_r()} methods respectively.
+\par In TriangleT, I implemented the three side lengths to be the state variables. However, perimeter and area of a triangle are two other options for the state variables. These are calculated in out \textbf{perim()} and \textbf{area()} methods respectively.
+\item Complex numbers can be compared for equality by checking the real and imaginary part of two complex numbers. However, complex numbers do not follow a natural linear ordering. This means that having methods for greater than and less than for \verb|ComplexT| would not make sense, and therefore should not be implemented.
+\item It is possible that the three integer inputs to the constructor of TriangleT will not form a valid triangle geometrically. In this case, the constructor should raise an exception as all other methods would be calculations on a triangle that cannot exist, which does not make sense. If the constructor does allow an invalid triangle to be built, every method would have to check for invalidity of triangle, resulting in redundancy. A better approach would be to check for invalidity in the constructor once and not allow an invalid object to be built. Therefore, the constructor should not construct an invalid triangle and raise a \verb|ValueError| instead. My current \verb|TriangleT| raises an \verb|Exception| when an invalid object is created. 
+\item The TriangleT could have the type of triangle as a state variable. This, however, is not a good idea because the user can incorrectly enter the type of triangle which does not represent the triangle they created. This can lead to an invalid type attached to the triangle object. Moreover, one triangle can be more than a single type and leaving that decision up to the user is not smart as either they have no assumed priority of the types of triangle, or their assumption does not match the one the programmer implements. This can lead to inconsistency in the software.
+\item Usability in software is the quality of the user's experience with a program in relation to effectiveness, efficiency and satisfaction. This depends on the context of use of a software. Performance, on the other hand, refers to the the amount of time and speed a software requires. These two software qualities are related as performance affects usability. For example, a software with poor performance would require more time and memory to run, which would result in the user having to wait longer periods of time to use the product. This reduces usability as the product is less satisfactory. Therefore, poor performance can in turn reduce the usability of a software.
+\item A rational design process would be going from your problem to development to requirements to design and documentation to code and finally to a V\&V Report. However, according to \emph{Parnas} and \emph{Clements}, there's rarely ever any software projects that proceed "rationally". The reasons for these are that more often than not teams who are responsible for software projects do not know the exact requirements of their program. Even if they think they know, many details only start surfacing during the implementation process which would require the programmer to go back and change the design specifications. Therefore, most design processes are "faked" to be rational as programmers often backtrack to change their design due to errors that are comprehended later in the design process.
+\item Reusability can arguably increase the reliability of a software product. This is because reusable products often go through more testing and careful designing, and are used more extensively. This would cause the program to also be more reliable as the probability of being free of failure will be higher in a more heavily tested program.
+\item Programming languages are abstractions built on top of hardware. An example of this would be the development of programming languages. Programming languages, such as Java, C++ and Python (high level languages), are developed with abstraction from machine language to assembly language to high level language. Machine language is directly executed by a computer, as it composes of binary patterns and is only understood by the computer. Assembly language, although not directly executed, is machine specific and understood by the processor as it directly accesses registers or memory locations on your system. Assembly language is a low-level language and is easier to understand as it uses some alphabets, however it needs an assembler to be converted to machine code. Further abstractions are made as high-level languages are machine independent and are easiest to interpret for humans. These languages can run on different processors and monitors. High-level languages are converted to assembly language through a compiler. Therefore, programming languages are layers of abstractions over hardware. These abstractions, from machine language to assembly language to high level language, make it easier for humans to create software in a language that is closer to natural language and hides the complexity of machine specific commands. The further abstractions also make a language less direct with a specific machine, and more portable.
+Examples of hardware abtraction layers, which help hide the differences in hardware from the operating system to allow code to run on different hardwares, include Microsoft Windows which is portable to different processors. Android also has a HAL to develop forward compatible software.
+\end{enumerate}
+
+\newpage
+
+\lstset{language=Python, basicstyle=\tiny, breaklines=true, showspaces=false,
+  showstringspaces=false, breakatwhitespace=true}
+%\lstset{language=C,linewidth=.94\textwidth,xleftmargin=1.1cm}
+
+\def\thesection{\Alph{section}}
+
+\section{Code for complex\_adt.py}
+
+\noindent \lstinputlisting{../src/complex_adt.py}
+
+\newpage
+
+\section{Code for triangle\_adt.py}
+
+\noindent \lstinputlisting{../src/triangle_adt.py}
+
+\newpage
+
+\section{Code for test\_driver.py}
+
+\noindent \lstinputlisting{../src/test_driver.py}
+
+\newpage
+
+\section{Code for Partner's complex\_adt.py}
+
+\noindent \lstinputlisting{../partner/complex_adt.py}
+
+\section{Code for Partner's triangle\_adt.py}
+
+\noindent \lstinputlisting{../partner/triangle_adt.py}
+
+\end {document}
