@@ -1,0 +1,184 @@
+\documentclass[12pt]{article}
+
+\usepackage{graphicx}
+\usepackage{paralist}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+
+\oddsidemargin 0mm
+\evensidemargin 0mm
+\textwidth 160mm
+\textheight 200mm
+
+\pagestyle {plain}
+\pagenumbering{arabic}
+
+\newcounter{stepnum}
+
+\title{Assignment 2 Solution}
+\author{Mehak Khan \\ khanm294 }
+\date{\today}
+
+\begin {document}
+
+\maketitle
+
+This report discusses the testing phase for .... It also discusses the results
+of running the same tests on the partner files. The assignment specifications
+are then critiqued and the requested discussion questions are answered.
+
+\section{Testing of the Original Program}
+The test cases for all classes were approached to cover boundary, normal and exception cases. Unit testing was done using \texttt{pytest}.\\
+\indent To ensure the functionality of \texttt{CircleT} and \texttt{TriangleT}, all the getters were tested. Only one circle and triangle was constructed to test these getters as their only purpose was to return a value based on the state variables, and did not cover any complicated cases. The constructors of both classes were tested to raise an exception in the case of a negative or 0 radius/side length or mass.\\
+\indent To ensure the functionality of \texttt{BodyT}, again all the getters were tested. Only one body instance was constructed to test these getters as their only purpose was to return a value based on the state variables, and did not cover any complicated cases. The testing for this class used pytest approximation due to floating point values. Lastly, the constructor was tested to raise an exception when expected.\\
+\indent To ensure the functionality of \texttt{Scene}, the getters and setters for the shape and velocity were tested normally on three different Scene instances. The simulation testing was done with the help of error calculation using the norm of a sequence. The error was picked to be a small value of 2e-3. The simulation was tested on projectile motions and shape falling under force of gravity in the negative y direction. There were no exceptions in this class.\\ 
+\indent Lastly, \texttt{Plot} was tested manually with comparing expected plot to calculated plot.\\
+\indent There were 48 tests which all passed and no problems surface through these test cases.
+
+
+
+
+\section{Results of Testing Partner's Code}
+My partner's code was tested using my \texttt{test\_driver}.
+The code, however, only passed 22 tests and had 26 errors. After some debugging, I figured that the errors surfaced due to my partner's \texttt{Scene} class inheriting \texttt{Shape} but not actually implementing all the methods in \texttt{Shape} class in \texttt{Scene}. This resulted in errors stating 
+\textit{"Can't instantiate abstract class Scene with abstract methods cm\_x, cm\_y, m\_inert, mass"}. As the MIS did not state that \texttt{Scene.py} is inheriting \texttt{Shape.py}, I ran my partner's code again after removing the inheritance. Doing that resulted in all 48 test cases passing. Therefore, all the errors were only a result of the incorrect inheritance. The result of this exercise vs the one done in A1 is obvious as in A1, many test cases failed mainly due to the decision differences in exceptions and assumptions made. However, A2 had a formal specification which led to the same assumptions and exceptions made in my code and my partner's code and resulting in a much smoother test cases result. Debugging why test cases failed was also easier in A2 than in A1 due to use the of \texttt{pytest}. Pytest is more informative about test cases failing and errors that caused the failure.
+
+\section{Critique of Given Design Specification}
+The specification of this design was provided formally via an MIS. I specifically liked this aspect of the specification because it clearly communicated what is required and what invariants should be met in a module. The input and output type were clearly communicated, along with any exceptions that the program should raise. This avoided confusion when interpreting the specification. This also allowed for consistency in naming conventions and exception types which made it easier to test the program. However, reading the formal specification took slightly longer than it would to read a natural language specification and gave less room for personal design decisions or creativity as there is no ambiguity in formal language. 
+The design specification did not meet the criteria of low coupling. \texttt{Shape.py} was inherited by 3 different modules, which promoted high coupling and does not allow the modules to be treated as individuals. However, the design did have high cohesion as the elements in the modules were closely related as they all corresponded to the movement of shapes in 2D space.
+As for minimality, the design was minimal for the most part except in \texttt{Scene.py}, the getters and setters for initial velocities and unbalanced forces both change two state variable in one method. This is not minimal design, however, considering the application, this works over here and we do not necessarily need minimality for these two methods.
+The specification did provide checks to avoid generating exceptions. Using the specification, we were required to raise an exception in several cases, such as when the mass is not greater than 0 in \texttt{TriangleT} and \texttt{CircleT}. These exceptions made use of conditional checks which avoid generated exceptions.
+Overall, the design specifications were adequate to me. However, due to difficulty in understanding the formal language and purpose behind each class, I would add notes in the design specification that explain the purpose of each module.
+
+
+\section{Answers}
+
+\begin{enumerate}[a)]
+\item I believe getters and setters should not be unit tested if they do not contain any logic, and all they do is get or set a state variable. An example of such would be \texttt{cm\_x} and \texttt{cm\_y} in \textbf{CircleT}. However, if the getter or setter contains some sort of logic or calculation, it should be tested. An example of this would be \texttt{cm\_x} and \texttt{cm\_y} in \textbf{BodyT}. Therefore, it is important to test for getters and setters that contain logic and/or calculations but simply returning or setting a value does not require a unit test.
+
+\item The setter and getter for the ($F_x$ and $F_y$) in \texttt{Scene.py} would be tested in a very similar way that the getter and setter for the initial velocities were tested. The return value of the method for \texttt(get\_unbal\_forces()) would be set equal to a tuple of the functions it is supposed to return, which would assert to True. Likewise, after calling the setter to set a new $F_x$ or $F_y$, the getter can be used again to assert that the functions are equal to the expected functions. An example of the testing included below:
+\begin{verbatim}
+assert(s1.get_unbal_forces() == (Fx, Fy))
+s1.set_unbal_forces(Fx_2, Fy_2)
+assert(s1.get_unbal_forces() == (Fx_2, Fy_2))
+\end{verbatim}
+
+\item If automated tests were required for \texttt{Plot.py}, I would import \texttt{compare\_images} from \texttt{matplotlib.testing.decorators}. We are able to save any plots using \texttt{plt.savefig("file\_name.png")}. Therefore, having two saved plots, one for the expected image and one for the generated image, allows us to use the \texttt{compare\_images method}. This method takes three parameters, two image paths and a tolerance value to the comparison of the two images. If the images are equal within the tolerance, a \texttt{None} type is returned. Assert that \texttt{None} is returned to pass the test case and make testing automated.
+
+\item 
+The solution below uses the same value for $\epsilon$ as used in my implementation (2e-3). \\
+
+\noindent $\text{close\_enough}: \text{seq of } \mathbb{R} \times \text{seq of } \mathbb{R} \rightarrow \text{Bool} $\\
+\noindent $\text{close\_enough}(x_\text{calc}, x_\text{true}) \equiv |\frac{ norm(difference(x_\text{calc}, x_\text{true}))} {norm(x_\text{true})}| < \epsilon$
+
+
+Local Functions: 
+
+\noindent $\text{norm}: \text{seq of } \mathbb{R} \rightarrow \mathbb{R} $\\
+\noindent $\text{norm}(s) \equiv (\exists x \in s | (\forall y \in s \cdot x \ge y))$\\
+
+\noindent $\text{difference}: \text{seq of } \mathbb{R} \times \text{seq of } \mathbb{R} \rightarrow \text{seq of } \mathbb{R} $\\
+\noindent $\text{difference}(s_1, s_2) \equiv [i: \mathbb{N} | i \in [0..|s_1|-1]: s_\text{1i} - s_\text{2i}]$\\
+
+
+\item There should not be any exceptions raised for negative x and y coordinates of the centre of mass. This is due to the fact that x and y coorindates only tell us the location of the centre of mass which is possibly anywhere in the coordinate system. Negative axis are still included in the 2D coordinate system, therefore raising an exception for this is not required.
+
+
+\item \texttt{TriangleT} has a state invariant that $s > 0 \wedge m > 0$. This invariant is always satisfied by the given specification as the constructor for TriangleT always first performs a check on the side length (s) and mass (m) to make sure they are both greater than 0. If not, a \texttt{Value Error} is raised and an object is not created. Therefore, informally proven that this state invariant is always satisfied.
+
+\item Python list comprehension statement that generates a list of the square root of all odd integers between 5 and 19: 
+\begin{verbatim}
+import math
+[math.sqrt(x) for x in range(5, 20) if x%2 != 0]
+\end{verbatim}
+
+\item Python function that takes in a string and returns a string but with all upper case letters removed:
+\begin{verbatim}
+def removeUpperCase(str1):
+    removed = [x for x in str1 if x.islower()]
+    return ''.join(removed)
+\end{verbatim}
+
+\item The principle of abstraction and generality are related as generality is used to solve a more general problem than the problem at hand while abstraction is to focus on what is important while ignoring what is irrelevant. Abstraction is often used to extract a more general solution from a specific solution. Using abstraction we leave out details that are not important which allows us to solve a more general problem that can be used in different solutions. Therefore, using abstraction helps us imlplement generality and they both help us achieve reusability of code. 
+
+\item When a module uses many other modules, we call this fan-out. On the other hand, when a module is used by many other modules, we call this fan-in. Fan-in is better than fan-out as a module that uses many others tends to be more fragile as it's correctness depends on different modules. However, when a module is used by many other modules, it promotes the reusability of code as different modules are able to use it. Therefore, in general fan-in is better.
+\end{enumerate}
+
+\newpage
+
+\lstset{language=Python, basicstyle=\tiny, breaklines=true, showspaces=false,
+  showstringspaces=false, breakatwhitespace=true}
+%\lstset{language=C,linewidth=.94\textwidth,xleftmargin=1.1cm}
+
+\def\thesection{\Alph{section}}
+
+\section{Code for Shape.py}
+
+\noindent \lstinputlisting{../src/Shape.py}
+
+\newpage
+
+\section{Code for CircleT.py}
+
+\noindent \lstinputlisting{../src/CircleT.py}
+
+\newpage
+
+\section{Code for TriangleT.py}
+
+\noindent \lstinputlisting{../src/TriangleT.py}
+
+\newpage
+
+\section{Code for BodyT.py}
+
+\noindent \lstinputlisting{../src/BodyT.py}
+
+\newpage
+
+\section{Code for Scene.py}
+
+\noindent \lstinputlisting{../src/Scene.py}
+
+\newpage
+
+\section{Code for Plot.py}
+
+\noindent \lstinputlisting{../src/Plot.py}
+
+\newpage
+
+\section{Code for test\_driver.py}
+
+\noindent \lstinputlisting{../src/test_driver.py}
+
+\newpage
+
+\section{Code for Partner's CircleT.py}
+
+\noindent \lstinputlisting{../partner/CircleT.py}
+
+\newpage
+
+\section{Code for Partner's TriangleT.py}
+
+\noindent \lstinputlisting{../partner/TriangleT.py}
+
+\newpage
+
+\section{Code for Partner's BodyT.py}
+
+\noindent \lstinputlisting{../partner/BodyT.py}
+
+\newpage
+
+\section{Code for Partner's Scene.py}
+
+\noindent \lstinputlisting{../partner/Scene.py}
+
+\newpage
+
+\end {document}
